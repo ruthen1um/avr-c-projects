@@ -1,24 +1,22 @@
 #include "usart.h"
+#include "util.h"
 
 #include <avr/io.h>
 
+#define UBRR_VALUE ((F_CPU / (16UL * BAUD)) - 1)
+
 void usart_init(void) {
-    uint16_t ubrr = (uint8_t)((F_CPU / (16UL * BAUD)) - 1);
-    UBRR0H = (uint8_t)(ubrr >> 8);
-    UBRR0L = (uint8_t)(ubrr);
+    UBRR0H = (uint8_t)(UBRR_VALUE >> 8);
+    UBRR0L = (uint8_t)(UBRR_VALUE);
 
-    UCSR0B |= (1 << RXEN0); // Enable reciever
-    UCSR0B |= (1 << TXEN0); // Enable transmitter
+    bit_set(UCSR0B, RXEN0);
+    bit_set(UCSR0B, TXEN0);
 
-    // Set frame format: 8 data bits, 1 stop bit, no parity
-    // UCSZ02 UCSZ01 UCSZ00
-    //      0      1      1
-    // 8 bits
-    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+    UCSR0C = _BV(UCSZ01) | _BV(UCSZ00);
 }
 
 void usart_send(byte data) {
-    // Wait until the transmit buffer is empty
+    loop_until_bit_is_set(UCSR0A, UDRE0);
     while (!(UCSR0A & (1 << UDRE0)));
     UDR0 = data;
 }

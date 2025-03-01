@@ -1,6 +1,10 @@
 #ifndef USART_H
 #define USART_H
 
+#ifndef __AVR_ATmega328P__
+    #error "USART library is only compatible with ATmega328P-based boards."
+#endif
+
 typedef unsigned char byte;
 
 void usart_init(void);
