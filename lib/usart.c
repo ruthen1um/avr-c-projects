@@ -15,15 +15,14 @@ void usart_init(void) {
     UCSR0C = _BV(UCSZ01) | _BV(UCSZ00);
 }
 
-void usart_send(byte data) {
+void usart_send_byte(byte data) {
     loop_until_bit_is_set(UCSR0A, UDRE0);
-    while (!(UCSR0A & (1 << UDRE0)));
     UDR0 = data;
 }
 
-void usart_send_bytes(const byte *arr) {
-    while (*arr) {
-        usart_send(*arr++);
+void usart_send_bytes(const byte *arr, unsigned int n) {
+    for (int i = 0; i < n; ++i) {
+        usart_send_byte(arr[i]);
     }
 }
 
